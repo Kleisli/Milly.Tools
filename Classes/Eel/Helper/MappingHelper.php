@@ -86,6 +86,16 @@ class MappingHelper implements ProtectedContextAwareInterface
     }
 
     /**
+     * @param object|string $model An object (class instance) or a string (class name) of a domain model
+     * @return string
+     */
+    public function getXliffIdPrefixByModel(object|string $model): string
+    {
+        $modelClassName = is_object($model) ? $model::class : $model;
+        return ClassMappingService::getPackageName($modelClassName).':Model.'.ClassMappingService::getModelName($modelClassName).':';
+    }
+
+    /**
      * @param string $className a Controller, Model or Repository class name
      * @return QueryResultInterface
      * @throws \Neos\Flow\Exception
