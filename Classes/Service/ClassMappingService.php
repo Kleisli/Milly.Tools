@@ -28,6 +28,7 @@ class ClassMappingService
      */
     public function getRepositoryClassByModel($model){
         $modelClassName = is_object($model) ? $model::class : $model;
+        $modelClassName = ReflectionService::cleanClassName($modelClassName);
         $repositoryClassNames = $this->reflectionService->getAllImplementationClassNamesForInterface(RepositoryInterface::class);
 
         foreach ($repositoryClassNames as $repositoryClassName) {
@@ -46,6 +47,7 @@ class ClassMappingService
      */
     public function getControllerClassByModel($model){
         $modelClassName = is_object($model) ? $model::class : $model;
+        $modelClassName = ReflectionService::cleanClassName($modelClassName);
         $controllerClassNames = $this->reflectionService->getAllImplementationClassNamesForInterface(ControllerInterface::class);
 
         foreach ($controllerClassNames as $controllerClassName) {

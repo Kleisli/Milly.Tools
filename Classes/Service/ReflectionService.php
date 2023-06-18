@@ -32,7 +32,8 @@ class ReflectionService
      */
     public function getTypeOfRelation($className, $relationName){
         $className = self::cleanClassName($className);
-        $propertyType = $this->reflectionService->getPropertyType($className, $relationName) ?? $this->reflectionService->getPropertyTagValues($className, $relationName, 'var')[0];
+        //$propertyType = $this->reflectionService->getPropertyType($className, $relationName) ?? $this->reflectionService->getPropertyTagValues($className, $relationName, 'var')[0];
+        $propertyType = $this->reflectionService->getPropertyTagValues($className, $relationName, 'var')[0];
         $parts =  explode('<', $propertyType);
         return substr($parts[1], 0, -1);
     }

@@ -2,40 +2,19 @@
 namespace Milly\Tools\Eel\Helper;
 
 use Kleisli\CrudForms\Service\ConfigurationService;
-use Kleisli\Flow\Persistence\Repository;
 use Milly\Tools\Service\ClassMappingService;
-use Milly\Tools\Service\ReflectionService;
-use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\Eel\ProtectedContextAwareInterface;
-use Neos\Flow\Annotations as Flow;
 use Neos\Flow\ObjectManagement\ObjectManagerInterface;
-use Neos\Flow\Persistence\PersistenceManagerInterface;
 use Neos\Flow\Persistence\QueryResultInterface;
 use Neos\Flow\Persistence\RepositoryInterface;
-use Profolio\Commerce\Domain\Model\Order;
-use Profolio\Commerce\Domain\Model\Price;
-use Profolio\Commerce\Domain\Model\Product;
-use Profolio\Commerce\Domain\Model\ProductVariant;
-use Profolio\Commerce\Domain\Model\QuantityDiscount;
-use Profolio\Commerce\Domain\Repository\ProductRepository;
-use Profolio\Data\Domain\Model\LpLearningGoal;
-use Profolio\Data\Domain\Model\Stao\Dimension;
-use Profolio\Data\Domain\Model\Stao\Item;
-use Profolio\Data\Domain\Repository\LpLearningGoalRepository;
-use Profolio\Data\Domain\Repository\Stao\DimensionRepository;
-use Profolio\Data\Domain\Repository\Stao\ItemRepository;
-use Profolio\UserManagement\Domain\Repository\UserRepository;
+use Neos\Flow\Annotations as Flow;
 
 class MappingHelper implements ProtectedContextAwareInterface
 {
-    /**
-     * @Flow\Inject
-     */
+    #[Flow\Inject]
     protected ObjectManagerInterface $objectManager;
 
-    /**
-     * @Flow\Inject
-     */
+    #[Flow\Inject]
     protected ClassMappingService $classMappingService;
 
     /**
