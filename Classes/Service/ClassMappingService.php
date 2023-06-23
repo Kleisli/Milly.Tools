@@ -96,13 +96,13 @@ class ClassMappingService
     public static function getPackageName(string $className): string
     {
         $className = ReflectionService::cleanClassName($className);
-        $parts = explode('\\', $className);
+        $parts = explode('\\', trim($className, '\\'));
         $packageName = array_shift($parts);
         foreach($parts as $part){
             if($part == "Controller" || $part == "Domain"){
                 break;
             }
-            $packageName .= '.'.$part;
+            $packageName .= '.' . $part;
         }
         return $packageName;
     }
