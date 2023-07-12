@@ -8,9 +8,7 @@ use Neos\Flow\Annotations as Flow;
 class ReflectionHelper implements ProtectedContextAwareInterface
 {
 
-    /**
-     * @Flow\Inject
-     */
+    #[Flow\Inject]
     protected ReflectionService $reflectionService;
 
     /**

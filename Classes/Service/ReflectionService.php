@@ -1,8 +1,10 @@
 <?php
 namespace Milly\Tools\Service;
 
+use Neos\Eel\Helper\TypeHelper;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Reflection\ReflectionService as FlowReflectionService;
+use Neos\Utility\TypeHandling;
 
 /**
  * @Flow\Scope("singleton")
@@ -32,10 +34,16 @@ class ReflectionService
      */
     public function getTypeOfRelation($className, $relationName){
         $className = self::cleanClassName($className);
-        //$propertyType = $this->reflectionService->getPropertyType($className, $relationName) ?? $this->reflectionService->getPropertyTagValues($className, $relationName, 'var')[0];
-        $propertyType = $this->reflectionService->getPropertyTagValues($className, $relationName, 'var')[0];
-        $parts =  explode('<', $propertyType);
-        return substr($parts[1], 0, -1);
+        if($this->isToManyRelation($className, $relationName)){
+            $propertyType = $this->reflectionService->getPropertyTagValues($className, $relationName, 'var')[0];
+        }else{
+            $var = $this->reflectionService->getPropertyTagValues($className, $relationName, 'var');
+            $propertyType = count($var) ? $var[0] : $this->reflectionService->getPropertyType($className, $relationName);
+        }
+        $types = TypeHandling::parseType($propertyType);
+        //\Neos\Flow\var_dump('CHECK '.$propertyType);
+        //\Neos\Flow\var_dump(TypeHandling::isCollectionType($types['type']));
+        return $this->isToManyRelation($className, $relationName) ? $types['elementType'] : $types['type'];
     }
 
     /**
@@ -77,7 +85,7 @@ class ReflectionService
      * @return string
      */
     public static function cleanClassName($className){
-        return str_replace('Neos\\Flow\\Persistence\\Doctrine\\Proxies\\__CG__\\', '', $className);
+        return trim(str_replace('Neos\\Flow\\Persistence\\Doctrine\\Proxies\\__CG__\\', '', $className), '\\');
     }
 
 }
