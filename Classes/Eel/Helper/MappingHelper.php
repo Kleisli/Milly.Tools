@@ -3,6 +3,7 @@ namespace Milly\Tools\Eel\Helper;
 
 use Kleisli\CrudForms\Service\ConfigurationService;
 use Milly\Tools\Service\ClassMappingService;
+use Milly\Tools\Service\ReflectionService;
 use Neos\Eel\ProtectedContextAwareInterface;
 use Neos\Flow\ObjectManagement\ObjectManagerInterface;
 use Neos\Flow\Persistence\QueryResultInterface;
@@ -18,12 +19,26 @@ class MappingHelper implements ProtectedContextAwareInterface
     protected ClassMappingService $classMappingService;
 
     /**
-     * @param string $className a Controller, Model or Repository class name
+     * @param object|string $model An object (class instance) or a string (class name) of a domain model
      * @return string
      */
-    public function getPackageNameByClass(string $className): string
+    public function getPackageNameByModel(object|string $model): string
     {
-        return ClassMappingService::getPackageName($className);
+        $modelClassName = is_object($model) ? $model::class : $model;
+        $modelClassName = ReflectionService::cleanClassName($modelClassName);
+        $controllerClass = $this->getControllerClassByModel($modelClassName);
+        return ClassMappingService::getPackageName($controllerClass);
+    }
+
+    /**
+     * @param string $className a Controller, Model or Repository class name
+     * @return string
+     * @deprecated
+     */
+    public function getPackageNameByModelClass(string $className): string
+    {
+        $controllerClass = $this->getControllerClassByModel($className);
+        return ClassMappingService::getPackageName($controllerClass);
     }
 
     /**

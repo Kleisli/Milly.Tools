@@ -124,11 +124,11 @@ class ClassMappingService
      * @return string
      * @throws \Neos\Flow\Exception
      */
-    public static function getModelName(string $className): string
+    public static function getModelName(string $className): ?string
     {
         $modelClass = ClassMappingService::getModelClass($className);
         $parts = explode('\\Model\\', $modelClass);
-        return $parts[1];
+        return $parts[1] ?? null;
     }
 
     /**
