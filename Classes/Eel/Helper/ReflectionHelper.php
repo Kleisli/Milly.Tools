@@ -4,6 +4,7 @@ namespace Milly\Tools\Eel\Helper;
 use Milly\Tools\Service\ReflectionService;
 use Neos\Eel\ProtectedContextAwareInterface;
 use Neos\Flow\Annotations as Flow;
+use Neos\Utility\Exception\InvalidTypeException;
 
 class ReflectionHelper implements ProtectedContextAwareInterface
 {
@@ -25,6 +26,7 @@ class ReflectionHelper implements ProtectedContextAwareInterface
      * @param object $model
      * @param string $relationName
      * @return string
+     * @throws InvalidTypeException
      */
     public function getTypeOfRelation(object $model, string $relationName): string
     {

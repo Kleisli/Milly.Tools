@@ -2,8 +2,10 @@
 namespace Milly\Tools\Service;
 
 use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Configuration\Exception\InvalidConfigurationException;
 use Neos\Flow\Exception;
 use Neos\Flow\Mvc\Controller\ControllerInterface;
+use Neos\Flow\Persistence\Doctrine\EntityManagerFactory;
 use Neos\Flow\Persistence\RepositoryInterface;
 use Neos\Flow\Reflection\ReflectionService as FlowReflectionService;
 
@@ -26,9 +28,10 @@ class ClassMappingService
      * @return string
      * @throws Exception
      */
-    public function getRepositoryClassByModel($model){
+    public function getRepositoryClassByModel(object|string $model): string
+    {
         $modelClassName = is_object($model) ? $model::class : $model;
-        $modelClassName = ReflectionService::cleanClassName($modelClassName);
+        $modelClassName = ClassMappingService::cleanClassName($modelClassName);
         $repositoryClassNames = $this->reflectionService->getAllImplementationClassNamesForInterface(RepositoryInterface::class);
 
         foreach ($repositoryClassNames as $repositoryClassName) {
@@ -45,9 +48,10 @@ class ClassMappingService
      * @return string
      * @throws Exception
      */
-    public function getControllerClassByModel($model){
+    public function getControllerClassByModel(object|string $model): string
+    {
         $modelClassName = is_object($model) ? $model::class : $model;
-        $modelClassName = ReflectionService::cleanClassName($modelClassName);
+        $modelClassName = ClassMappingService::cleanClassName($modelClassName);
         $controllerClassNames = $this->reflectionService->getAllImplementationClassNamesForInterface(ControllerInterface::class);
 
         foreach ($controllerClassNames as $controllerClassName) {
@@ -95,7 +99,7 @@ class ClassMappingService
      */
     public static function getPackageName(string $className): string
     {
-        $className = ReflectionService::cleanClassName($className);
+        $className = ClassMappingService::cleanClassName($className);
         $parts = explode('\\', trim($className, '\\'));
         $packageName = array_shift($parts);
         foreach($parts as $part){
@@ -121,8 +125,8 @@ class ClassMappingService
 
     /**
      * @param string $className a Controller, Model or Repository class name
-     * @return string
-     * @throws \Neos\Flow\Exception
+     * @return string|null
+     * @throws Exception
      */
     public static function getModelName(string $className): ?string
     {
@@ -137,8 +141,9 @@ class ClassMappingService
      * @return string className
      * @throws Exception
      */
-    static public function convertClass(string $className, string $type){
-        $className = ReflectionService::cleanClassName($className);
+    static public function convertClass(string $className, string $type): string
+    {
+        $className = ClassMappingService::cleanClassName($className);
 
         $className = str_replace(['\\Controller\\', '\\Domain\\Model\\', '\\Domain\\Repository\\'], '\\{Type}\\', $className);
         if(str_ends_with($className, 'Repository') || str_ends_with($className, 'Controller')){
@@ -156,6 +161,18 @@ class ClassMappingService
         }
 
         return $className;
+    }
+
+    /**
+     * @param $className
+     * @return string
+     * @throws InvalidConfigurationException
+     */
+    public static function cleanClassName($className): string
+    {
+        $emf = new EntityManagerFactory();
+        $entityManager = $emf->create();
+        return $entityManager->getClassMetadata($className)->getName();
     }
 
 
