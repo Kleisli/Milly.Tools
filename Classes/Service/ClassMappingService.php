@@ -1,6 +1,8 @@
 <?php
 namespace Milly\Tools\Service;
 
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Configuration\Exception\InvalidConfigurationException;
 use Neos\Flow\Exception;
@@ -18,10 +20,11 @@ class ClassMappingService
     const TYPE_MODEL = 'Model';
     const TYPE_REPOSITORY = 'Repository';
 
-    /**
-     * @Flow\Inject
-     */
-    protected FlowReflectionService $reflectionService;
+    #[Flow\Inject]
+    protected FlowReflectionService $flowReflectionService;
+
+    #[Flow\Inject]
+    protected EntityManagerInterface $entityManager;
 
     /**
      * @param object|string $model An object (class instance) or a string (class name) of a domain model
@@ -32,7 +35,7 @@ class ClassMappingService
     {
         $modelClassName = is_object($model) ? $model::class : $model;
         $modelClassName = $this->cleanClassName($modelClassName);
-        $repositoryClassNames = $this->reflectionService->getAllImplementationClassNamesForInterface(RepositoryInterface::class);
+        $repositoryClassNames = $this->flowReflectionService->getAllImplementationClassNamesForInterface(RepositoryInterface::class);
 
         foreach ($repositoryClassNames as $repositoryClassName) {
             if (defined($repositoryClassName . '::ENTITY_CLASSNAME') && $repositoryClassName::ENTITY_CLASSNAME == $modelClassName) {
@@ -52,7 +55,7 @@ class ClassMappingService
     {
         $modelClassName = is_object($model) ? $model::class : $model;
         $modelClassName = $this->cleanClassName($modelClassName);
-        $controllerClassNames = $this->reflectionService->getAllImplementationClassNamesForInterface(ControllerInterface::class);
+        $controllerClassNames = $this->flowReflectionService->getAllImplementationClassNamesForInterface(ControllerInterface::class);
 
         foreach ($controllerClassNames as $controllerClassName) {
             if (defined($controllerClassName . '::ENTITY_CLASSNAME') && $controllerClassName::ENTITY_CLASSNAME == $modelClassName) {
@@ -137,14 +140,11 @@ class ClassMappingService
     /**
      * @param $className
      * @return string
-     * @throws InvalidConfigurationException
      */
     public function cleanClassName($className): string
     {
         if(strpos($className, '\\Model\\')) {
-            $emf = new EntityManagerFactory();
-            $entityManager = $emf->create();
-            $className = $entityManager->getClassMetadata($className)->getName();
+            $className = $this->entityManager->getClassMetadata($className)->getName();
         }
         return $className;
     }
