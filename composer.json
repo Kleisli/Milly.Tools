@@ -1,7 +1,7 @@
 {
     "description": "",
     "type": "neos-framework",
-    "name": "milly/tools",
+    "name": "kleisli/milly-tools",
     "require": {
         "neos/flow": "*"
     },

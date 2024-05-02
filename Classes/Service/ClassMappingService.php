@@ -31,7 +31,7 @@ class ClassMappingService
     public function getRepositoryClassByModel(object|string $model): string
     {
         $modelClassName = is_object($model) ? $model::class : $model;
-        $modelClassName = ClassMappingService::cleanClassName($modelClassName);
+        $modelClassName = $this->cleanClassName($modelClassName);
         $repositoryClassNames = $this->reflectionService->getAllImplementationClassNamesForInterface(RepositoryInterface::class);
 
         foreach ($repositoryClassNames as $repositoryClassName) {
@@ -40,7 +40,7 @@ class ClassMappingService
             }
         }
 
-        return ClassMappingService::getRepositoryClass($modelClassName);
+        return $this->convertClass($modelClassName, self::TYPE_REPOSITORY);
     }
 
     /**
@@ -51,7 +51,7 @@ class ClassMappingService
     public function getControllerClassByModel(object|string $model): string
     {
         $modelClassName = is_object($model) ? $model::class : $model;
-        $modelClassName = ClassMappingService::cleanClassName($modelClassName);
+        $modelClassName = $this->cleanClassName($modelClassName);
         $controllerClassNames = $this->reflectionService->getAllImplementationClassNamesForInterface(ControllerInterface::class);
 
         foreach ($controllerClassNames as $controllerClassName) {
@@ -60,46 +60,29 @@ class ClassMappingService
             }
         }
 
-        return ClassMappingService::getControllerClass($modelClassName);
+        return $this->convertClass($modelClassName, self::TYPE_CONTROLLER);
     }
 
     /**
-     * @param string $className a Controller, Model or Repository class name
+     * @param object|string $model An object (class instance) or a string (class name) of a domain model
      * @return string
      * @throws Exception
      */
-    public static function getModelClass(string $className)
+    public function getControllerNameByModel(object|string $model): string
     {
-        return self::convertClass($className, self::TYPE_MODEL);
+        $controllerClass = $this->getControllerClassByModel($model);
+        $parts =  explode('\\Controller\\', $controllerClass);
+        return substr($parts[1], 0, -10);
     }
 
     /**
      * @param string $className a Controller, Model or Repository class name
      * @return string
-     * @throws Exception
+     * @throws InvalidConfigurationException
      */
-    public static function getRepositoryClass(string $className)
+    public function getPackageName(string $className): string
     {
-        return self::convertClass($className, self::TYPE_REPOSITORY);
-    }
-
-    /**
-     * @param string $className a Controller, Model or Repository class name
-     * @return string
-     * @throws Exception
-     */
-    public static function getControllerClass(string $className)
-    {
-        return self::convertClass($className, self::TYPE_CONTROLLER);
-    }
-
-    /**
-     * @param string $className a Controller, Model or Repository class name
-     * @return string
-     */
-    public static function getPackageName(string $className): string
-    {
-        $className = ClassMappingService::cleanClassName($className);
+        $className = $this->cleanClassName($className);
         $parts = explode('\\', trim($className, '\\'));
         $packageName = array_shift($parts);
         foreach($parts as $part){
@@ -113,24 +96,12 @@ class ClassMappingService
 
     /**
      * @param string $className a Controller, Model or Repository class name
-     * @return string
-     * @throws \Neos\Flow\Exception
-     */
-    public static function getControllerName(string $className): string
-    {
-        $controllerClass = ClassMappingService::getControllerClass($className);
-        $parts =  explode('\\Controller\\', $controllerClass);
-        return substr($parts[1], 0, -10);
-    }
-
-    /**
-     * @param string $className a Controller, Model or Repository class name
      * @return string|null
      * @throws Exception
      */
-    public static function getModelName(string $className): ?string
+    public function getModelName(string $className): ?string
     {
-        $modelClass = ClassMappingService::getModelClass($className);
+        $modelClass = $this->convertClass($className, self::TYPE_MODEL);
         $parts = explode('\\Model\\', $modelClass);
         return $parts[1] ?? null;
     }
@@ -141,9 +112,9 @@ class ClassMappingService
      * @return string className
      * @throws Exception
      */
-    static public function convertClass(string $className, string $type): string
+    function convertClass(string $className, string $type): string
     {
-        $className = ClassMappingService::cleanClassName($className);
+        $className = $this->cleanClassName($className);
 
         $className = str_replace(['\\Controller\\', '\\Domain\\Model\\', '\\Domain\\Repository\\'], '\\{Type}\\', $className);
         if(str_ends_with($className, 'Repository') || str_ends_with($className, 'Controller')){
@@ -168,7 +139,7 @@ class ClassMappingService
      * @return string
      * @throws InvalidConfigurationException
      */
-    public static function cleanClassName($className): string
+    public function cleanClassName($className): string
     {
         $emf = new EntityManagerFactory();
         $entityManager = $emf->create();

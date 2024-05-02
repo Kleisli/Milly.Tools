@@ -5,8 +5,6 @@ use Milly\Tools\Service\ClassMappingService;
 use Neos\Eel\ProtectedContextAwareInterface;
 use Neos\Flow\Exception;
 use Neos\Flow\ObjectManagement\ObjectManagerInterface;
-use Neos\Flow\Persistence\QueryResultInterface;
-use Neos\Flow\Persistence\RepositoryInterface;
 use Neos\Flow\Annotations as Flow;
 
 class MappingHelper implements ProtectedContextAwareInterface
@@ -25,7 +23,7 @@ class MappingHelper implements ProtectedContextAwareInterface
     public function getControllerPackageNameByModel(object|string $model): string
     {
         $controllerClass = $this->classMappingService->getControllerClassByModel($model);
-        return ClassMappingService::getPackageName($controllerClass);
+        return $this->classMappingService->getPackageName($controllerClass);
     }
 
     /**
@@ -35,8 +33,7 @@ class MappingHelper implements ProtectedContextAwareInterface
      */
     public function getControllerNameByModel(object|string $model): string
     {
-        $controllerClass = $this->classMappingService->getControllerClassByModel($model);
-        return ClassMappingService::getControllerName($controllerClass);
+        return $this->classMappingService->getControllerNameByModel($model);
     }
 
     /**
@@ -47,7 +44,7 @@ class MappingHelper implements ProtectedContextAwareInterface
     public function getXliffIdPrefixByModel(object|string $model): string
     {
         $modelClassName = is_object($model) ? $model::class : $model;
-        return ClassMappingService::getPackageName($modelClassName).':Model.'.ClassMappingService::getModelName($modelClassName).':';
+        return $this->classMappingService->getPackageName($modelClassName).':Model.'.$this->classMappingService->getModelName($modelClassName).':';
     }
 
 
