@@ -82,7 +82,9 @@ class ClassMappingService
      */
     public function getPackageName(string $className): string
     {
-        $className = $this->cleanClassName($className);
+        if(strpos($className, '\\Model\\')) {
+            $className = $this->cleanClassName($className);
+        }
         $parts = explode('\\', trim($className, '\\'));
         $packageName = array_shift($parts);
         foreach($parts as $part){
