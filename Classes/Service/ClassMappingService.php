@@ -82,9 +82,7 @@ class ClassMappingService
      */
     public function getPackageName(string $className): string
     {
-        if(strpos($className, '\\Model\\')) {
-            $className = $this->cleanClassName($className);
-        }
+        $className = $this->cleanClassName($className);
         $parts = explode('\\', trim($className, '\\'));
         $packageName = array_shift($parts);
         foreach($parts as $part){
@@ -143,9 +141,12 @@ class ClassMappingService
      */
     public function cleanClassName($className): string
     {
-        $emf = new EntityManagerFactory();
-        $entityManager = $emf->create();
-        return $entityManager->getClassMetadata($className)->getName();
+        if(strpos($className, '\\Model\\')) {
+            $emf = new EntityManagerFactory();
+            $entityManager = $emf->create();
+            $className = $entityManager->getClassMetadata($className)->getName();
+        }
+        return $className;
     }
 
 
