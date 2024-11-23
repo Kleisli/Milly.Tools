@@ -70,7 +70,8 @@ class ReflectionService
     {
         $className = $this->entityManager->getClassMetadata($className)->getName();
         return $this->reflectionService->isPropertyTaggedWith($className, $relationName, 'manytomany') ||
-            $this->reflectionService->isPropertyTaggedWith($className, $relationName, 'onetomany');
+            $this->reflectionService->isPropertyTaggedWith($className, $relationName, 'onetomany') ||
+            str_starts_with($this->reflectionService->getPropertyTagValues($className, $relationName, 'var')[0], 'array');
     }
 
 }
